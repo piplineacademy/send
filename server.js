@@ -2,6 +2,9 @@ const express = require('express');
 const axios = require('axios');
 const path = require('path');
 const cors = require('cors');
+const multer = require('multer');
+const FormData = require('form-data');
+const fs = require('fs');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
