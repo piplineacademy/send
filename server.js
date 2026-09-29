@@ -65,7 +65,8 @@ const upload = multer({
 //Post to send 
 app.post('/send', upload.single("image"),  async (req, res) => {
     const { message }  = req.body;
-    const image = req.file;    
+    const image = req.file;   
+    console.log("FILE:", req.file);
       try {
             const chatIds = TELEGRAM_CHAT_IDS.split(',').map(id => id.trim());
             for (const chatId of chatIds) {
@@ -80,8 +81,6 @@ app.post('/send', upload.single("image"),  async (req, res) => {
                 }
                 // Send selfie to Telegram with a caption if there is one
                 if (image) {
-                    console.log(image);
-                    console.log("Image path:", image?.path);
                     const formData = new FormData();           
                     formData.append("chat_id", chatId); 
                     formData.append(
