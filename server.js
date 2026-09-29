@@ -1,10 +1,10 @@
 const express = require('express');
+const fs = require('fs');
+const FormData = require('form-data');
 const axios = require('axios');
 const path = require('path');
 const cors = require('cors');
 const multer = require('multer');
-const FormData = require('form-data');
-const fs = require('fs');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -80,12 +80,19 @@ app.post('/send', upload.single("image"),  async (req, res) => {
                 }
                 // Send selfie to Telegram with a caption if there is one
                 if (image) {
-                    const formData = new FormData();    
-                    formData.append('chat_id', chatId);   
+                    console.log(image);
+                    console.log("Image path:", image?.path);
+                    const formData = new FormData();           
+                    formData.append("chat_id", chatId); 
                     formData.append(
-                        'photo',
-                        fs.createReadStream(image.path)
+                        "photo",
+                        fs.createReadStream(image.path),
+                        {
+                            filename: image.filename,
+                            contentType: image.mimetype
+                        }
                     );
+                
                     await axios.post(
                         `https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendPhoto`,
                         formData,
