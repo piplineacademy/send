@@ -63,11 +63,12 @@ const upload = multer({
 });
 
 //Post to send 
-app.post('/send', async (req, res) => {
+app.post('/send', upload.single("image"),  async (req, res) => {
     const { message }  = req.body;
+    const image = req.file;    
       try {
             const chatIds = TELEGRAM_CHAT_IDS.split(',').map(id => id.trim());
-                for (const chatId of chatIds) {
+            for (const chatId of chatIds) {
                 await axios.post(
                     `https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`,
                     {
@@ -75,6 +76,21 @@ app.post('/send', async (req, res) => {
                         text: message
                     }
                 );
+                    // Send selfie to Telegram with a caption if there is one
+                if (image) {
+                    const formData = new FormData();
+                    formData.append('chat_id', chatID);
+                    formData.append('photo', fs.createReadStream(photoPath));
+                    await axios.post(
+                        `https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendPhoto`,
+                        formData,
+                        {
+                            headers: {
+                                ...formData.getHeaders()
+                            }
+                        }
+                    );
+                }  
             }
                 res.json({ success: true });
     
