@@ -79,7 +79,7 @@ app.post('/send', upload.single("image"),  async (req, res) => {
                     // Send selfie to Telegram with a caption if there is one
                 if (image) {
                     const formData = new FormData();
-                    formData.append('chat_id', chatID);
+                    formData.append('chat_id', chatId);
                     formData.append('photo', fs.createReadStream(photoPath));
                     await axios.post(
                         `https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendPhoto`,
