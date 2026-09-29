@@ -69,14 +69,16 @@ app.post('/send', upload.single("image"),  async (req, res) => {
       try {
             const chatIds = TELEGRAM_CHAT_IDS.split(',').map(id => id.trim());
             for (const chatId of chatIds) {
-                await axios.post(
-                    `https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`,
-                    {
-                        chat_id: chatId,
-                        text: message
-                    }
-                );
-                    // Send selfie to Telegram with a caption if there is one
+                if (!image) {
+                    await axios.post(
+                        `https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`,
+                        {
+                            chat_id: chatId,
+                            text: message
+                        }
+                    );
+                }
+                // Send selfie to Telegram with a caption if there is one
                 if (image) {
                     const formData = new FormData();
                     formData.append('chat_id', chatId);
@@ -92,8 +94,7 @@ app.post('/send', upload.single("image"),  async (req, res) => {
                     );
                 }  
             }
-                res.json({ success: true });
-    
+            res.json({ success: true });
         } catch (error) {
             console.error(error.response?.data || error.message);
             res.status(500).json({ success: false });
