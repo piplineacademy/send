@@ -66,7 +66,6 @@ const upload = multer({
 app.post('/send', upload.single("image"),  async (req, res) => {
     const { message }  = req.body;
     const image = req.file;   
-    console.log("FILE:", req.file);
       try {
             const chatIds = TELEGRAM_CHAT_IDS.split(',').map(id => id.trim());
             for (const chatId of chatIds) {
