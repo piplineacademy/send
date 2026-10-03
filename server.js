@@ -199,8 +199,10 @@ app.get('/b', (req, res) => {
 
 // Get all messages (for initial load)
 app.get('/ab', (req, res) => {
-    res.json(Amessages);
-    res.json(Bmessages);
+    res.json({
+        A: Amessages,
+        B: Bmessages
+    });
 });
 
 // Clear all messages 
