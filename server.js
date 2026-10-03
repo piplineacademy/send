@@ -179,9 +179,6 @@ app.delete('/user/messages', (req, res) => {
     res.json({ success: true, message: 'All messages cleared' });
 });
 
-
-
-
 app.listen(PORT, '0.0.0.0', () => {
     console.log(`🚀 Server running at ${PORT}`);
 });
