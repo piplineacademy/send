@@ -67,40 +67,40 @@ app.post('/send', upload.single("image"),  async (req, res) => {
     const { message }  = req.body;
     const image = req.file;   
       try {
-            const chatIds = TELEGRAM_CHAT_IDS.split(',').map(id => id.trim());
-            for (const chatId of chatIds) {
-                if (!image) {
-                    await axios.post(
-                        `https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`,
-                        {
-                            chat_id: chatId,
-                            text: message
-                        }
-                    );
-                }
-                // Send selfie to Telegram with a caption if there is one
-                if (image) {
-                    const formData = new FormData();           
-                    formData.append("chat_id", chatId); 
-                    formData.append(
-                        "photo",
-                        fs.createReadStream(image.path),
-                        {
-                            filename: image.filename,
-                            contentType: image.mimetype
-                        }
-                    );
-                
-                    await axios.post(
-                        `https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendPhoto`,
-                        formData,
-                        {
-                            headers: formData.getHeaders()
-                        }
-                    );
-                }
+        const chatIds = TELEGRAM_CHAT_IDS.split(',').map(id => id.trim());
+        for (const chatId of chatIds) {
+          if (!image) {
+              await axios.post(
+                    `https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`,
+                    {
+                        chat_id: chatId,
+                        text: message
+                    }
+                );
             }
-            res.json({ success: true });
+            // Send selfie to Telegram with a caption if there is one
+            if (image) {
+                const formData = new FormData();           
+                formData.append("chat_id", chatId); 
+                formData.append(
+                    "photo",
+                    fs.createReadStream(image.path),
+                    {
+                        filename: image.filename,
+                        contentType: image.mimetype
+                    }
+                );
+            
+                await axios.post(
+                    `https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendPhoto`,
+                    formData,
+                    {
+                        headers: formData.getHeaders()
+                    }
+                );
+            }
+        }
+        res.json({ success: true });
         } catch (error) {
             console.error(error.response?.data || error.message);
             res.status(500).json({ success: false });
@@ -130,14 +130,11 @@ app.post('/users', async (req, res) => {
 // GET endpoint to retrieve messages (From Users)
 app.get('/users', (req, res) => {
     const lastMessageId = req.query.lastMessageId || 0;    
-    // Check if there are new messages
+
     const newMessages = messages.filter(msg => msg.id > lastMessageId);
-   
     if (newMessages.length > 0) {
-        // Return immediately if there's a new message
         res.json(newMessages);
     } else {
-        // Store the client request for long-polling
         const client = {
             id: Date.now(),
             res: res,
@@ -145,7 +142,6 @@ app.get('/users', (req, res) => {
         };
         clients.push(client);
         
-        // Set timeout for long-polling (30 seconds max)
         setTimeout(() => {
             const index = clients.findIndex(c => c.id === client.id);
             if (index !== -1) {
