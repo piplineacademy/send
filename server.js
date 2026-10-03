@@ -108,30 +108,32 @@ app.post('/send', upload.single("image"),  async (req, res) => {
 });
 
 // DETAILS TRANSFER!!!
-let messages = [];
-let clients = [];
+let messagesA = [];
+let clientsA = [];
+let messagesB = [];
+let clientsB = [];
 
-// POST endpoint to receive messages (From Users)
-app.post('/users', async (req, res) => { 
+// POST endpoint to receive messages
+app.post('/a', async (req, res) => { 
     const newMessage = { 
         id: Date.now(), 
         ...req.body,
         time: new Date().toISOString()
     };
-    messages.push(newMessage);
-    clients.forEach(client => {
+    messagesA.push(newMessage);
+    clientsA.forEach(client => {
         client.res.json([newMessage]);
     });
-    clients = [];
+    clientsA = [];
     res.json({ success: true, message: newMessage });
 });
 
 
-// GET endpoint to retrieve messages (From Users)
-app.get('/users', (req, res) => {
+// GET endpoint to retrieve messages
+app.get('/a', (req, res) => {
     const lastMessageId = req.query.lastMessageId || 0;    
 
-    const newMessages = messages.filter(msg => msg.id > lastMessageId);
+    const newMessages = messagesA.filter(msg => msg.id > lastMessageId);
     if (newMessages.length > 0) {
         res.json(newMessages);
     } else {
@@ -140,12 +142,53 @@ app.get('/users', (req, res) => {
             res: res,
             lastMessageId: lastMessageId
         };
-        clients.push(client);
+        clientsA.push(client);
         
         setTimeout(() => {
-            const index = clients.findIndex(c => c.id === client.id);
+            const index = clientsA.findIndex(c => c.id === client.id);
             if (index !== -1) {
-                clients.splice(index, 1);
+                clientsA.splice(index, 1);
+                res.json([]);
+            }
+        }, 30000);
+    }
+});
+
+// POST endpoint to receive messages
+app.post('/b', async (req, res) => { 
+    const newMessage = { 
+        id: Date.now(), 
+        ...req.body,
+        time: new Date().toISOString()
+    };
+    messagesB.push(newMessage);
+    clientsB.forEach(client => {
+        client.res.json([newMessage]);
+    });
+    clientsB = [];
+    res.json({ success: true, message: newMessage });
+});
+
+
+// GET endpoint to retrieve messages
+app.get('/b', (req, res) => {
+    const lastMessageId = req.query.lastMessageId || 0;    
+
+    const newMessages = messagesB.filter(msg => msg.id > lastMessageId);
+    if (newMessages.length > 0) {
+        res.json(newMessages);
+    } else {
+        const client = {
+            id: Date.now(),
+            res: res,
+            lastMessageId: lastMessageId
+        };
+        clientsB.push(client);
+        
+        setTimeout(() => {
+            const index = clientsB.findIndex(c => c.id === client.id);
+            if (index !== -1) {
+                clientsB.splice(index, 1);
                 res.json([]);
             }
         }, 30000);
@@ -153,16 +196,17 @@ app.get('/users', (req, res) => {
 });
 
 
-// Get all messages (for initial load)
-app.get('/user/messages/all', (req, res) => {
-    res.json(messages);
-});
 
+// Get all messages (for initial load)
+app.get('/ab', (req, res) => {
+    res.json(messagesA);
+    res.json(messagesB);
+});
 
 // Clear all messages 
 app.delete('/user/messages', (req, res) => {
-    messages = [];
-    clients = [];
+    messagesA = [];
+    clientsA = [];
     res.json({ success: true, message: 'All messages cleared' });
 });
 
