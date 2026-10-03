@@ -108,40 +108,31 @@ app.post('/send', upload.single("image"),  async (req, res) => {
 });
 
 // DETAILS TRANSFER!!!
-// DETAILS TRANSFER!!!
-// DETAILS TRANSFER!!!
 let messages = [];
 let clients = [];
 
 // POST endpoint to receive messages (From Users)
-app.post('/users', async (req, res) => {
-    
+app.post('/users', async (req, res) => { 
     const newMessage = { 
         id: Date.now(), 
         ...req.body,
         time: new Date().toISOString()
     };
-    
-    // Save to memory
     messages.push(newMessage);
-
-    // Notify waiting clients
     clients.forEach(client => {
         client.res.json([newMessage]);
     });
     clients = [];
-    
     res.json({ success: true, message: newMessage });
 });
 
 
 // GET endpoint to retrieve messages (From Users)
 app.get('/users', (req, res) => {
-    const lastMessageId = req.query.lastMessageId || 0;
-    
+    const lastMessageId = req.query.lastMessageId || 0;    
     // Check if there are new messages
     const newMessages = messages.filter(msg => msg.id > lastMessageId);
-    
+   
     if (newMessages.length > 0) {
         // Return immediately if there's a new message
         res.json(newMessages);
